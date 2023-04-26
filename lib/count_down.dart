@@ -1,22 +1,34 @@
 import 'dart:async';
 import 'timer_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CountDown {
   // periodically update the time decrease the value of the start clock
-
+  static const String WORK = 'workTime';
+  static const String LONG = 'longBreak';
+  static const String SHORT = 'shortBreak';
   double _radius = 1;
   late Duration _time;
   late Duration _totalTime;
   bool isActive = true;
   int shortBreak = 10;
   int longBreak = 15;
+  int work = 30;
+  getSetting() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    work = (pref.getInt(WORK) == null) ? 30 : pref.getInt(WORK)!;
+    shortBreak = (pref.getInt(SHORT) == null) ? 5 : pref.getInt(SHORT)!;
+    longBreak = (pref.getInt(LONG) == null) ? 15 : pref.getInt(LONG)!;
+  }
 
-  startWork() {
-    _time = Duration(minutes: 30, seconds: 0);
+  startWork() async {
+    await getSetting();
+    _time = Duration(minutes: work, seconds: 0);
     _totalTime = _time;
   }
 
-  startBreak(isShort) {
+  startBreak(isShort) async {
+    await getSetting();
     _time = Duration(seconds: 0, minutes: (isShort) ? shortBreak : longBreak);
     _totalTime = _time;
   }
@@ -39,10 +51,9 @@ class CountDown {
         // update the _time
         _time = _time - Duration(seconds: 1);
         _radius = _time.inSeconds / _totalTime.inSeconds;
-      }
-
-      if (_time == 0) {
-        isActive = false;
+        if (_time == 0) {
+          isActive = false;
+        }
       }
 
       changedTime = formatString(_time);

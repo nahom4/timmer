@@ -3,6 +3,7 @@ import 'package:timmer/timer_model.dart';
 import 'widgets.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'count_down.dart';
+import 'settings.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -11,12 +12,37 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   final CountDown timer = CountDown();
+  List<PopupMenuItem<String>> menuList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    menuList.add(PopupMenuItem(value: 'setting', child: Text('Setting')));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    
     timer.startWork();
+
+    // function to navigate to settings
+    navigateToSetting(BuildContext context) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Settings()));
+    }
+
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'setting') {
+                  navigateToSetting(context);
+                }
+              },
+              itemBuilder: (BuildContext context) => menuList.toList())
+        ],
         title: Text('My Work Timmer'),
       ),
       body: LayoutBuilder(
